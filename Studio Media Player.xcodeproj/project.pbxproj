@@ -20,6 +20,8 @@
 		8899FF1128716C2F00FB08BD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		8899FF1328716C2F00FB08BD /* Studio_Media_Player.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Studio_Media_Player.entitlements; sourceTree = "<group>"; };
 		8899FF3528716E0200FB08BD /* MovieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieView.swift; sourceTree = "<group>"; };
+		88BA5B8128755C4A00873267 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		88BA5B8228755DD200873267 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -36,6 +38,8 @@
 		8899FF0028716C2E00FB08BD = {
 			isa = PBXGroup;
 			children = (
+				88BA5B8228755DD200873267 /* LICENSE.md */,
+				88BA5B8128755C4A00873267 /* README.md */,
 				8899FF0B28716C2E00FB08BD /* Studio Media Player */,
 				8899FF0A28716C2E00FB08BD /* Products */,
 			);

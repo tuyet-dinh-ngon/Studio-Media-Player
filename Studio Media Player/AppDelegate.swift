@@ -18,7 +18,7 @@ class AppDelegate: NSObject, NSApplicationDelegate
         // Insert code here to initialize your application
         
         mvv.setup() // if( !mvv.setup() ) { exit(1) }
-        CVDisplayLinkStart(mvv.vlink!)
+        // CVDisplayLinkStart(mvv.vlink!)
     }
     
     @IBAction func playOpenMedia(_ sender: Any)

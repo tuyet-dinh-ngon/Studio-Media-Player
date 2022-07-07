@@ -10,12 +10,13 @@ import Cocoa
 import Dispatch
 
 import AVFoundation
+import AVKit
 import CoreVideo
 
-class MovieView : NSView
+class MovieView : AVPlayerView // was: NSView.
 {
     var asset: AVAsset?
-    var player: AVPlayer?
+    // var player: AVPlayer?
     var item: AVPlayerItem?
     var vout: AVPlayerItemVideoOutput?
     var cvpb: CVPixelBuffer?
@@ -31,7 +32,7 @@ class MovieView : NSView
     var orect: CGRect = .init()
     var vrect: CGRect = .init()
     
-    func setup() -> Bool
+    func setup() -> Void // was: Bool
     {
         self.canDrawConcurrently = true //
         self.cix = .init()
@@ -44,7 +45,7 @@ class MovieView : NSView
         cvpb = nil
         cii = nil
         
-        var cvret: CVReturn
+        /* var cvret: CVReturn
         
         cvret = CVDisplayLinkCreateWithActiveCGDisplays(&vlink)
         if( vlink == nil ) { return false }
@@ -56,7 +57,7 @@ class MovieView : NSView
         
         if( cvret == kCVReturnSuccess ) {
             return true
-        } else { return false }
+        } else { return false } */
     }
     
     func assign_asset(_ asset: AVAsset)
@@ -89,11 +90,14 @@ class MovieView : NSView
                                         irect.width))
     }
     
-    override func draw(_ rect: NSRect)
+    /* override func draw(_ rect: NSRect)
     {
         rects_recalc()
         
-        let ctx: CGContext = NSGraphicsContext.current!.cgContext
+        var nsg: NSGraphicsContext? = nil
+        nsg = NSGraphicsContext.current
+        
+        let ctx: CGContext = nsg!.cgContext
         ctx.setFillColor(gray: 0.0, alpha: 1.0)
         ctx.fill(orect)
         if( cgi != nil ) { ctx.draw(cgi!, in: vrect) }
@@ -121,7 +125,10 @@ class MovieView : NSView
                 forItemTime: t, itemTimeForDisplay: nil)
             cii = .init(cvPixelBuffer: cvpb!)
             irect = cii!.extent
-            
+        }
+        
+        if( cii != nil )
+        {
             srect = CGRect(origin: irect.origin,
                            size: CGSize(width: irect.width / 2,
                                         height: irect.height))
@@ -137,10 +144,9 @@ class MovieView : NSView
         }
         
         DispatchQueue.main.async {
-            self.needsDisplay = true
-            // self.displayIfNeeded()
+            self.displayIgnoringOpacity(self.bounds)
         }
-    }
+    } */
     
     @IBAction func skipforward(_ sender: Any)
     {
@@ -179,7 +185,7 @@ class MovieView : NSView
     }
 }
 
-func vlink_callback(
+/* func vlink_callback(
     displayLink: CVDisplayLink,
     inNow: UnsafePointer<CVTimeStamp>,
     inOutputTime: UnsafePointer<CVTimeStamp>,
@@ -193,4 +199,4 @@ func vlink_callback(
     mvview.video_render(inNow.pointee)
     
     return kCVReturnSuccess
-}
+} */

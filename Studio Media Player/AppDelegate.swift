@@ -17,7 +17,7 @@ class AppDelegate: NSObject, NSApplicationDelegate
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
         
-        if( !mvv.setup() ) { exit(1) }
+        mvv.setup() // if( !mvv.setup() ) { exit(1) }
         CVDisplayLinkStart(mvv.vlink!)
     }
     

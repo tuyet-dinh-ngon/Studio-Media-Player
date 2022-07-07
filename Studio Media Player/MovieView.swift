@@ -67,8 +67,9 @@ class MovieView : NSView
         item!.add(vout!)
     }
     
-    override func draw(_ rect: NSRect)
+    func rects_recalc()
     {
+        //DispatchQueue.main.sync { orect = NSRectToCGRect(bounds) }
         orect = NSRectToCGRect(bounds)
         
         var oy: CGFloat = 0
@@ -86,7 +87,12 @@ class MovieView : NSView
                                     height: irect.height *
                                         orect.width /
                                         irect.width))
-
+    }
+    
+    override func draw(_ rect: NSRect)
+    {
+        rects_recalc()
+        
         let ctx: CGContext = NSGraphicsContext.current!.cgContext
         ctx.setFillColor(gray: 0.0, alpha: 1.0)
         ctx.fill(orect)
@@ -120,7 +126,9 @@ class MovieView : NSView
                            size: CGSize(width: irect.width / 2,
                                         height: irect.height))
             
-            if( (d.videoTime * 120) % Int64(d.videoTimeScale * 2) > d.videoTimeScale )
+            if( (d.videoTime * 120) %
+                (Int64(d.videoTimeScale) * 2) >=
+                Int64(d.videoTimeScale) )
             {
                 srect = srect.offsetBy(dx: irect.width / 2, dy: 0)
             }

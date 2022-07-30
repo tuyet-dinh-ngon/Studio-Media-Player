@@ -17,8 +17,9 @@ class AppDelegate: NSObject, NSApplicationDelegate
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
         
-        mvv.setup() // if( !mvv.setup() ) { exit(1) }
-        // CVDisplayLinkStart(mvv.vlink!)
+        //mvv.setup()
+        if( !mvv.setup() ) { exit(1) }
+        CVDisplayLinkStart(mvv.vlink!) // #unless USE_AV_PLAYER_VIEW: 
     }
     
     @IBAction func playOpenMedia(_ sender: Any)

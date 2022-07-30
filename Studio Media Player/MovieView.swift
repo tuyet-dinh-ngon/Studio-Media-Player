@@ -13,39 +13,29 @@ import AVFoundation
 import AVKit
 import CoreVideo
 
-class MovieView : AVPlayerView // was: NSView.
+class MovieView : NSView
 {
     var asset: AVAsset?
-    // var player: AVPlayer?
     var item: AVPlayerItem?
+    var vlink: CVDisplayLink?
+//* #unless USE_AV_PLAYERV_VIEW
     var vout: AVPlayerItemVideoOutput?
-    var cvpb: CVPixelBuffer?
-    var cii: CIImage?
+    var player: AVPlayer?
     var cgi: CGImage?
     var cix: CIContext?
-    var vlink: CVDisplayLink?
+    var playinglayer: AVPlayerLayer?
+//*/
     
     override var isOpaque: Bool { get { return true } }
     
-    var irect: CGRect = .init()
-    var srect: CGRect = .init()
-    var orect: CGRect = .init()
-    var vrect: CGRect = .init()
-    
-    func setup() -> Void // was: Bool
+    func setup() -> Bool
     {
-        self.canDrawConcurrently = true //
-        self.cix = .init()
-        
         self.asset = nil
         self.item = nil
         self.player = .init()
         self.vout = .init()
         
-        cvpb = nil
-        cii = nil
-        
-        /* var cvret: CVReturn
+        var cvret: CVReturn
         
         cvret = CVDisplayLinkCreateWithActiveCGDisplays(&vlink)
         if( vlink == nil ) { return false }
@@ -57,7 +47,8 @@ class MovieView : AVPlayerView // was: NSView.
         
         if( cvret == kCVReturnSuccess ) {
             return true
-        } else { return false } */
+        } else { return false }
+        // return true
     }
     
     func assign_asset(_ asset: AVAsset)
@@ -66,7 +57,17 @@ class MovieView : AVPlayerView // was: NSView.
         item = .init(asset: self.asset!)
         self.player?.replaceCurrentItem(with: item)
         item!.add(vout!)
+        
+        self.playinglayer = .init(player: self.player!)
+        self.layer = self.playinglayer
+        
     }
+    
+    var eye_right: Bool = false
+    var irect: CGRect = .init()
+    var srect: CGRect = .init()
+    var orect: CGRect = .init()
+    var vrect: CGRect = .init()
     
     func rects_recalc()
     {
@@ -83,14 +84,24 @@ class MovieView : AVPlayerView // was: NSView.
                   irect.width) / 2
         }
         
-        vrect = CGRect(origin: CGPoint(x: 0, y: oy),
-                       size: CGSize(width: orect.width,
-                                    height: irect.height *
-                                        orect.width /
-                                        irect.width))
+        let oh: CGFloat = irect.height * orect.width / irect.width
+        let osize: CGSize = CGSize(width: orect.width * 2,
+                                   height: oh)
+        
+        if( eye_right )
+        {
+            vrect = CGRect(origin: CGPoint(x: -orect.width, y: oy),
+                           size: osize)
+        }
+        else
+        {
+            vrect = CGRect(origin: CGPoint(x: 0, y: oy),
+                           size: osize)
+        }
     }
     
-    /* override func draw(_ rect: NSRect)
+/* #unless USE_AV_PLAYERV_VIEW
+    override func draw(_ rect: NSRect)
     {
         rects_recalc()
         
@@ -100,13 +111,14 @@ class MovieView : AVPlayerView // was: NSView.
         let ctx: CGContext = nsg!.cgContext
         ctx.setFillColor(gray: 0.0, alpha: 1.0)
         ctx.fill(orect)
-        if( cgi != nil ) { ctx.draw(cgi!, in: vrect) }
+        if( cgi != nil ) { ctx.draw(cgi!, in: orect) }
         ctx.flush()
         
         // let ctx:CIContext = NSGraphicsContext.current!.ciContext
         // ctx.draw(CIImage.black, in: orect, from: CGRect(x:0, y:0, width:64, height:64))
         // if( cii != nil ) { ctx.draw(cii!, in: vrect, from: srect) }
     }
+*/
     
     // var ts: CMTime? = nil
     
@@ -119,6 +131,9 @@ class MovieView : AVPlayerView // was: NSView.
             ts = t
         } */
         
+        var cvpb: CVPixelBuffer?
+        var cii: CIImage?
+        
         if( vout?.hasNewPixelBuffer(forItemTime: t) ?? false )
         {
             cvpb = vout!.copyPixelBuffer(
@@ -127,26 +142,43 @@ class MovieView : AVPlayerView // was: NSView.
             irect = cii!.extent
         }
         
-        if( cii != nil )
+        if( (d.videoTime * 120) % // should be 120.
+            (Int64(d.videoTimeScale) * 2) >=
+            Int64(d.videoTimeScale) )
+        {
+            eye_right = true
+        }
+        else { eye_right = false }
+        
+        /* if( cii != nil )
         {
             srect = CGRect(origin: irect.origin,
                            size: CGSize(width: irect.width / 2,
                                         height: irect.height))
             
-            if( (d.videoTime * 120) %
-                (Int64(d.videoTimeScale) * 2) >=
-                Int64(d.videoTimeScale) )
+            if( eye_right )
             {
                 srect = srect.offsetBy(dx: irect.width / 2, dy: 0)
             }
+        } */
         
-            cgi = cix!.createCGImage(cii!, from: srect)
+        DispatchQueue.main.sync {
+            if( self.layer != nil && self.irect.width > 0 )
+            {
+                CATransaction.begin()
+                CATransaction.setDisableActions(true)
+                let tx: CGAffineTransform = .init(scaleX: 2.0, y: 1.0)
+                self.layer!.setAffineTransform(tx)
+                self.rects_recalc()
+                self.layer!.frame = self.vrect
+                //print(self.eye_right, self.vrect)
+                CATransaction.commit()
+            }
+            self.needsDisplay = true
+            //self.displayIgnoringOpacity(self.bounds)
+            self.window!.display()
         }
-        
-        DispatchQueue.main.async {
-            self.displayIgnoringOpacity(self.bounds)
-        }
-    } */
+    }
     
     @IBAction func skipforward(_ sender: Any)
     {
@@ -185,7 +217,8 @@ class MovieView : AVPlayerView // was: NSView.
     }
 }
 
-/* func vlink_callback(
+//* #unless USE_AV_PLAYERV_VIEW
+func vlink_callback(
     displayLink: CVDisplayLink,
     inNow: UnsafePointer<CVTimeStamp>,
     inOutputTime: UnsafePointer<CVTimeStamp>,
@@ -199,4 +232,5 @@ class MovieView : AVPlayerView // was: NSView.
     mvview.video_render(inNow.pointee)
     
     return kCVReturnSuccess
-} */
+}
+//*/
